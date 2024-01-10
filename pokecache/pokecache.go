@@ -53,7 +53,7 @@ func (c *Cache) reapLoop(){
 
 		c.cacheLock.Lock()
 		for key,entry :=range c.entries{
-			if(entry.createdAt.Add(c.interval).After(time.Now())){
+			if(entry.createdAt.Add(c.interval).Before(time.Now())){
 				delete(c.entries, key)
 			}
 		}
