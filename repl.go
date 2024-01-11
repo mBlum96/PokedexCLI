@@ -6,40 +6,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"sync"
 )
-
-type cliCommand struct{
-    name string
-    description string
-    callback func() error
-}
-
-var commands map[string]cliCommand
-
-func init() {
-    commands = map[string]cliCommand{
-        "help": {
-            name: "help",
-            description: "Show help",
-            callback: commandHelp,
-        },
-        "exit": {
-            name: "exit",
-            description: "Exit the program",
-            callback: commandExit,
-        },
-        "map":{
-            name: "map",
-            description: "Show the map",
-            callback: commandMap,
-        },
-        "bmap":{
-            name: "bmap",
-            description: "Show the previous map",
-            callback: commandBMap,
-        },
-    }
-}
 
 func handleCommand(command string) error{
     cmd,ok := commands[command]
@@ -62,9 +30,10 @@ func repl() {
             continue
         }
         input = strings.TrimSpace(input)
-        lock.Lock()
+		commandLock := &sync.Mutex{}
+        commandLock.Lock()
         err = handleCommand(input)
-        lock.Unlock()
+        commandLock.Unlock()
         if(err != nil){
             fmt.Println("Error executing command:", err)
             continue

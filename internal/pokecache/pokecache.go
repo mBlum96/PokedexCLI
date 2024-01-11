@@ -40,7 +40,9 @@ func (c *Cache) Add(key string, val []byte){
 }
 
 func (c *Cache) Get(key string) ([]byte,bool){
+	c.cacheLock.Lock()
 	entry := c.entries[key].val
+	c.cacheLock.Unlock()
 	if(entry!=nil){
 		return entry,true
 	}

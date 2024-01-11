@@ -1,24 +1,13 @@
 package main
 
-import (
-	"encoding/json"
-	"errors"
-	"io"
-	"net/http"
-)
+import "pokedexcli/internal/pokeapi"
 
-func commandBMap() error{
-    currentMapPage = result.Previous
-    resp, err := http.Get(currentMapPage)
-    if err != nil{
-        return err
-    }
-    defer resp.Body.Close()
-    body, err := io.ReadAll(resp.Body)
-    if err != nil {
-        return errors.New("Error reading response body")
-    }
-    err = json.Unmarshal(body, &result)
-    mapPrinter(&result)
-    return nil
+func commandBMap(client *pokeapi.Client) error{
+	result, err := client.FetchLocation()
+	if err != nil{
+		return err
+	}
+	pokeapi.PrintMap(result)
+	client.MovePreviousPageMap(*result)
+	return nil
 }
