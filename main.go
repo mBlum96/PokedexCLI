@@ -2,8 +2,6 @@ package main
 
 import (
 	"pokedexcli/internal/pokeapi"
-	"pokedexcli/pokecache"
-	"time"
 )
 
 type cliCommand struct{
@@ -45,8 +43,6 @@ func init() {
 }
 
 func main(){
-    const interval = time.Minute
-    myCache:= pokecache.NewCache(interval)
     repl()
 }
 

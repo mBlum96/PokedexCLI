@@ -7,7 +7,7 @@ func commandBMap(client *pokeapi.Client) error{
 	if err != nil{
 		return err
 	}
-	pokeapi.PrintMap(result)
 	client.MovePreviousPageMap(*result)
+	pokeapi.PrintMap(result)
 	return nil
 }
