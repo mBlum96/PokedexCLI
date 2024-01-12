@@ -5,11 +5,10 @@ import (
 )
 
 func commandMap(client *pokeapi.Client) error{
-	result, err := client.FetchLocation()
+	result, err := client.FetchLocation(pokeapi.NEXT)
 	if err != nil{
 		return err
 	}
 	pokeapi.PrintMap(result)
-	client.MoveNextPageMap(*result)
 	return nil
 }

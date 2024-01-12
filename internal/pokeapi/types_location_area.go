@@ -9,3 +9,9 @@ type LocationResponse struct{
 type locationData struct {
     Name string `json:"name"`
 }
+
+type LocationAddresses struct{
+	Current string
+	Next string
+	Previous string
+}
