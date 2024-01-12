@@ -15,7 +15,10 @@ func handleCommand(command string) error{
         var err_str string = fmt.Sprintf("command '%s' is unknown", command)
         return errors.New(err_str)
     }
-    cmd.callback()
+    err := cmd.callback()
+	if err != nil{
+		return err
+	}
     return nil
 }
 
