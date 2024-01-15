@@ -23,6 +23,14 @@ type Client struct {
 	addresses LocationAddresses
 }
 
+type LocationFetcher interface{
+	FetchLocation(direction string)
+}
+
+type PokemonEncounterFetcher interface{
+	FetchPokemonEncountered(location string)
+}
+
 func (c *Client) GetPreviousAddress() string{
 	return c.addresses.Previous
 }
@@ -56,23 +64,34 @@ func (c *Client) FetchLocation(direction string) (*LocationResponse, error) {
 		requestAddress = c.addresses.Previous
 	}
 	cacheResponse, exists := c.cache.Get(requestAddress)
+	var locationFetchResponse interface{}
+	var fetchErr error
 	if exists {
-		return fetchFromCache(cacheResponse, &result, c)
+		locationFetchResponse, fetchErr = fetchFromCache(cacheResponse, &result, c)
+	}else{
+		locationFetchResponse, fetchErr = fetchFromServer(requestAddress, &result,c)
 	}
-	return fetchFromServer(requestAddress, &result,c)
+	if fetchErr != nil{
+		return nil, fetchErr
+	}
+	assertedLocationFetchResponse, ok := locationFetchResponse.(*LocationResponse)
+	if(ok == false){
+		return nil, errors.New("Error casting result")
+	}
+	c.addresses.Next = assertedLocationFetchResponse.Next
+	c.addresses.Previous = assertedLocationFetchResponse.Previous
+	return assertedLocationFetchResponse, fetchErr
 }
 
-func fetchFromCache(cacheResponse []byte, result *LocationResponse,c *Client) (*LocationResponse, error){
+func fetchFromCache(cacheResponse []byte, result *LocationResponse,c *Client) (interface{}, error){
 	err := json.Unmarshal(cacheResponse, &result)
 	if err != nil {
 		return nil, errors.New("Error unmarshalling response body")
 	}
-	c.addresses.Next = result.Next
-	c.addresses.Previous = result.Previous
 	return result, nil
 }
 
-func fetchFromServer(requestAddress string, result *LocationResponse,c *Client)(*LocationResponse, error){
+func fetchFromServer(requestAddress string, result interface{},c *Client)(interface{}, error){
 	resp, err := http.Get(requestAddress)
 	if err != nil {
 		return nil, err
@@ -87,7 +106,9 @@ func fetchFromServer(requestAddress string, result *LocationResponse,c *Client)(
 	if err != nil {
 		return nil, errors.New("Error unmarshalling response body")
 	}
-	c.addresses.Next = result.Next
-	c.addresses.Previous = result.Previous
 	return result, nil
+}
+
+func FetchPokemonEncountered(location string) (*PokemonEncounterResponse, error){
+	return nil, nil
 }

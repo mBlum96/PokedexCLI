@@ -39,6 +39,13 @@ func init() {
                 return commandBMap(client)
             },
         },
+        "explore":{
+            name: "explore",
+            description: "Explore the map",
+            callback: func() error{
+                return commandExplore(client)
+            },
+        },
     }
 }
 
