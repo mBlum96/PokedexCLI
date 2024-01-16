@@ -15,3 +15,12 @@ type LocationAddresses struct{
 	Next string
 	Previous string
 }
+
+type pokemonEncountered struct {
+	Pokemon []struct {
+		PokemonDetails struct {
+			Name string `json:"name"`
+			URL  string `json:"url"`
+		}
+	}
+}

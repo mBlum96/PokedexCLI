@@ -7,7 +7,7 @@ import (
 type cliCommand struct{
     name string
     description string
-    callback func() error
+    callback func([]string) error
 }
 
 var commands map[string]cliCommand
@@ -43,7 +43,7 @@ func init() {
             name: "explore",
             description: "Explore the map",
             callback: func() error{
-                return commandExplore(client)
+                return commandExplore(client, location)
             },
         },
     }

@@ -21,6 +21,7 @@ type Client struct {
 	baseUrl string
 	cache   *pokecache.Cache
 	addresses LocationAddresses
+	exploreAreaAdress string
 }
 
 type LocationFetcher interface{
@@ -45,6 +46,7 @@ func NewClient() *Client {
 			Next: "",
 			Previous: "",
 		},
+		exploreAreaAdress: "",
 	}
 }
 
@@ -109,6 +111,12 @@ func fetchFromServer(requestAddress string, result interface{},c *Client)(interf
 	return result, nil
 }
 
-func FetchPokemonEncountered(location string) (*PokemonEncounterResponse, error){
+func FetchPokemonEncountered(location string) (*pokemonEncountered, error){
+	var result pokemonEncountered
+	var requestAddress string
+	if(location == ""){
+		return nil, errors.New("No location provided")
+	}
+
 	return nil, nil
 }

@@ -2,7 +2,7 @@ package main
 
 import "fmt"
 
-func commandHelp() error{
+func commandHelp([]string) error{
     fmt.Println("Available commands:")
     for _,cmd := range(commands){
         //print command name and description
