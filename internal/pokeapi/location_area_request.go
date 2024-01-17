@@ -10,3 +10,9 @@ func PrintMap(response *LocationResponse){
         fmt.Printf("%s\n", area.Name)
     }
 }
+
+func PrintPokemon(response *pokemonEncountered){
+    for _,pokemon := range(response.PokemonEncounters){
+        fmt.Printf("%s\n", pokemon.Pokemon.Name)
+    }
+}

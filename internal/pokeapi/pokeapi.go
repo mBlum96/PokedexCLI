@@ -50,6 +50,20 @@ func NewClient() *Client {
 	}
 }
 
+func fetchData (requestAddress string, result interface{}, c *Client) (error){
+	cacheResponse, exists := c.cache.Get(requestAddress)
+	var fetchErr error
+	if exists {
+		fetchErr = fetchFromCache(cacheResponse, &result, c)
+	}else{
+		fetchErr = fetchFromServer(requestAddress, &result,c)
+	}
+	if fetchErr != nil{
+		return fetchErr
+	}
+	return nil
+}
+
 func (c *Client) FetchLocation(direction string) (*LocationResponse, error) {
 	var result LocationResponse
 	var requestAddress string
@@ -65,58 +79,52 @@ func (c *Client) FetchLocation(direction string) (*LocationResponse, error) {
 		}
 		requestAddress = c.addresses.Previous
 	}
-	cacheResponse, exists := c.cache.Get(requestAddress)
-	var locationFetchResponse interface{}
-	var fetchErr error
-	if exists {
-		locationFetchResponse, fetchErr = fetchFromCache(cacheResponse, &result, c)
-	}else{
-		locationFetchResponse, fetchErr = fetchFromServer(requestAddress, &result,c)
+	fetchErr := fetchData(requestAddress, &result, c)
+	if(fetchErr!=nil){
+		return nil,fetchErr
 	}
-	if fetchErr != nil{
-		return nil, fetchErr
-	}
-	assertedLocationFetchResponse, ok := locationFetchResponse.(*LocationResponse)
-	if(ok == false){
-		return nil, errors.New("Error casting result")
-	}
-	c.addresses.Next = assertedLocationFetchResponse.Next
-	c.addresses.Previous = assertedLocationFetchResponse.Previous
-	return assertedLocationFetchResponse, fetchErr
+	c.addresses.Next = result.Next
+	c.addresses.Previous = result.Previous
+	return &result, nil
 }
 
-func fetchFromCache(cacheResponse []byte, result *LocationResponse,c *Client) (interface{}, error){
+func fetchFromCache(cacheResponse []byte, result interface{},c *Client) (error){
 	err := json.Unmarshal(cacheResponse, &result)
 	if err != nil {
-		return nil, errors.New("Error unmarshalling response body")
+		return errors.New("Error unmarshalling response body")
 	}
-	return result, nil
+	return nil
 }
 
-func fetchFromServer(requestAddress string, result interface{},c *Client)(interface{}, error){
+func fetchFromServer(requestAddress string, result interface{},c *Client)(error){
 	resp, err := http.Get(requestAddress)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, errors.New("Error reading response body")
+		return errors.New("Error reading response body")
 	}
 	err = json.Unmarshal(body, &result)
-	c.cache.Add(requestAddress, body)
 	if err != nil {
-		return nil, errors.New("Error unmarshalling response body")
+		return errors.New("Error unmarshalling response body")
 	}
-	return result, nil
+	c.cache.Add(requestAddress, body)
+	return nil
 }
 
-func FetchPokemonEncountered(location string) (*pokemonEncountered, error){
+func (c *Client) FetchPokemonEncountered(location string) (*pokemonEncountered, error){
 	var result pokemonEncountered
-	var requestAddress string
 	if(location == ""){
 		return nil, errors.New("No location provided")
 	}
-
-	return nil, nil
+	fetchErr := fetchData(location, &result, c)
+	if(fetchErr!=nil){
+		if(fetchErr.Error() == "Error unmarshalling response body"){
+			return nil, errors.New("No pokemon encountered, try a different location or check the spelling")
+		}
+		return nil,fetchErr
+	}
+	return &result, nil
 }

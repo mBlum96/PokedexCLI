@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"pokedexcli/internal/pokeapi"
 )
 
@@ -28,21 +29,25 @@ func init() {
         "map":{
             name: "map",
             description: "Show the map",
-            callback: func() error {
+            callback: func(params []string) error {
                 return commandMap(client)
             },
         },
         "bmap":{
             name: "bmap",
             description: "Show the previous map",
-            callback: func() error {
+            callback: func(params []string) error {
                 return commandBMap(client)
             },
         },
         "explore":{
             name: "explore",
-            description: "Explore the map",
-            callback: func() error{
+            description: "Explore the chosen location",
+            callback: func(params []string) error{
+                if len(params) < 1{
+                    return errors.New("No location provided for 'explore' command")
+                }
+                location:=params[0]
                 return commandExplore(client, location)
             },
         },
