@@ -12,6 +12,7 @@ func PrintMap(response *LocationResponse){
 }
 
 func PrintPokemon(response *pokemonEncountered){
+    println("Found Pokemon:")
     for _,pokemon := range(response.PokemonEncounters){
         fmt.Printf("%s\n", pokemon.Pokemon.Name)
     }
