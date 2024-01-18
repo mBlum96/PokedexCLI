@@ -15,6 +15,7 @@ const(
 	DefaultBaseUrl = "https://pokeapi.co/api/v2/"
 	NEXT = "next"
 	PREV = "previous"
+	PidgeyBaseExperience = 25
 )
 
 type Client struct {
@@ -22,6 +23,7 @@ type Client struct {
 	cache   *pokecache.Cache
 	addresses LocationAddresses
 	exploreAreaAdress string
+	pokeDex map[string]PokemonInfo
 }
 
 type LocationFetcher interface{
@@ -47,7 +49,16 @@ func NewClient() *Client {
 			Previous: "",
 		},
 		exploreAreaAdress: "",
+		pokeDex: make(map[string]PokemonInfo),
 	}
+}
+
+func (c *Client) GetPokeDex() map[string]PokemonInfo{
+	return c.pokeDex
+}
+
+func (c *Client) AddToPokeDex(pokemon PokemonInfo){
+	c.pokeDex[pokemon.Name] = pokemon
 }
 
 func fetchData (requestAddress string, result interface{}, c *Client) (error){
@@ -123,6 +134,21 @@ func (c *Client) FetchPokemonEncountered(location string) (*pokemonEncountered, 
 	if(fetchErr!=nil){
 		if(fetchErr.Error() == "Error unmarshalling response body"){
 			return nil, errors.New("No pokemon encountered, try a different location or check the spelling")
+		}
+		return nil,fetchErr
+	}
+	return &result, nil
+}
+
+func (c *Client) FetchPokemonInformation(pokemon string) (*PokemonInfo, error){
+	var result PokemonInfo
+	if(pokemon == ""){
+		return nil,errors.New("No pokemon provided")
+	}
+	fetchErr:=fetchData(pokemon,&result,c)
+	if(fetchErr!=nil){
+		if(fetchErr.Error() == "Error unmarshalling response body"){
+			return nil, errors.New("No pokemon with this name")
 		}
 		return nil,fetchErr
 	}

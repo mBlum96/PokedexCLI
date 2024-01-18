@@ -51,6 +51,17 @@ func init() {
                 return commandExplore(client, location)
             },
         },
+        "catch":{
+            name: "catch",
+            description: "Attempt to catch the chosen pokemon",
+            callback: func(params []string) error{
+                if len(params)<1{
+                    return errors.New("No pokemon provided for 'catch' command")
+                }
+                pokemon:=params[0]
+                return commandCatch(client, pokemon)
+            },
+        },
     }
 }
 
