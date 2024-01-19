@@ -33,9 +33,9 @@ func tryCatchingPokemon(pokemonData pokeapi.PokemonInfo, c *pokeapi.Client ){
 	time.Sleep(500 * time.Millisecond)
 	print(".\n")
 	if(randomNumber<pokeapi.PidgeyBaseExperience){
+		c.AddToPokeDex(pokemonData)
 		println(pokemonData.Name + " was caught!")
 	}else{
-		c.AddToPokeDex(pokemonData)
 		println(pokemonData.Name + " escaped!")
 	}
 }

@@ -62,6 +62,17 @@ func init() {
                 return commandCatch(client, pokemon)
             },
         },
+        "inspect":{
+            name: "inspect",
+            description: "Get information regarding the chosen pokemon",
+            callback: func(params []string) error{
+                if len(params)<1{
+                    return errors.New("No pokemon provided for 'inspect' command")
+                }
+                pokemon:=params[0]
+                return commandInspect(client, pokemon)
+            },
+        },
     }
 }
 
