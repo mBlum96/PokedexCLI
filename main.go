@@ -13,7 +13,7 @@ type cliCommand struct{
 
 var commands map[string]cliCommand
 
-func init() {
+func main(){
     client:= pokeapi.NewClient()
     commands = map[string]cliCommand{
         "help": {
@@ -81,9 +81,6 @@ func init() {
             },
         },
     }
-}
-
-func main(){
     repl()
 }
 
