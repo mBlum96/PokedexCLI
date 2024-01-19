@@ -1,0 +1,5 @@
+#ignore the binary
+/pokemoncli
+
+#ignore vs code settings
+.vscode/
