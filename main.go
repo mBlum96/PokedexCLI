@@ -73,6 +73,13 @@ func init() {
                 return commandInspect(client, pokemon)
             },
         },
+        "pokedex":{
+            name: "pokedex",
+            description: "List caught pokemon",
+            callback: func(params []string) error{
+                return commandPokedex(client)
+            },
+        },
     }
 }
 
