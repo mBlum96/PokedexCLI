@@ -5,11 +5,12 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"pokedexcli/internal/pokeapi"
 	"strings"
 	"sync"
 )
 
-func handleCommand(input string) error{
+func handleCommand(c *pokeapi.Client ,input string) error{
     words := strings.Fields(input)
     if(len(words) == 0){
         return errors.New("No command entered")
@@ -21,7 +22,7 @@ func handleCommand(input string) error{
         var err_str string = fmt.Sprintf("command '%s' is unknown", command)
         return errors.New(err_str)
     }
-    err := cmd.callback(params)
+    err := cmd.callback(c,params)
 	if err != nil{
 		return err
 	}
@@ -29,7 +30,7 @@ func handleCommand(input string) error{
 }
 
 
-func repl() {
+func repl(c *pokeapi.Client) {
 	reader := bufio.NewReader(os.Stdin)
     for{
         fmt.Print("pokedex>")
@@ -41,7 +42,7 @@ func repl() {
         input = strings.TrimSpace(input)
 		commandLock := &sync.Mutex{}
         commandLock.Lock()
-        err = handleCommand(input)
+        err = handleCommand(c,input)
         commandLock.Unlock()
         if(err != nil){
             fmt.Println("Error executing command:", err)

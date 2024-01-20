@@ -1,8 +1,11 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"pokedexcli/internal/pokeapi"
+)
 
-func commandHelp([]string) error{
+func commandHelp(c *pokeapi.Client) error{
     fmt.Println("Available commands:")
     for _,cmd := range(commands){
         //print command name and description

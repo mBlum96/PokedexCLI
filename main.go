@@ -8,7 +8,24 @@ import (
 type cliCommand struct{
     name string
     description string
-    callback func([]string) error
+    callback func(*pokeapi.Client ,[]string) error
+}
+
+func callbackWithParams(command func(*pokeapi.Client, string) error) func(*pokeapi.Client, []string) error{
+    return func(client *pokeapi.Client, params []string) error{
+        if(len(params)>1){
+            return errors.New("Too many parameters")
+        }else if(len(params)<1){
+            return errors.New("Too few parameters")
+        }
+        return command(client, params[0])
+    }
+}
+
+func callbackNoParams(command func(*pokeapi.Client) error) func(*pokeapi.Client, []string) error{
+    return func(client *pokeapi.Client, params []string) error{
+        return command(client)
+    }
 }
 
 var commands map[string]cliCommand
@@ -19,68 +36,44 @@ func main(){
         "help": {
             name: "help",
             description: "Show help",
-            callback: commandHelp,
+            callback: callbackNoParams(commandHelp),
         },
         "exit": {
             name: "exit",
             description: "Exit the program",
-            callback: commandExit,
+            callback: callbackNoParams(commandExit),
         },
         "map":{
             name: "map",
             description: "Show the map",
-            callback: func(params []string) error {
-                return commandMap(client)
-            },
+            callback: callbackNoParams(commandMap),
         },
         "bmap":{
             name: "bmap",
             description: "Show the previous map",
-            callback: func(params []string) error {
-                return commandBMap(client)
-            },
+            callback: callbackNoParams(commandBMap),
         },
         "explore":{
             name: "explore",
             description: "Explore the chosen location",
-            callback: func(params []string) error{
-                if len(params) < 1{
-                    return errors.New("No location provided for 'explore' command")
-                }
-                location:=params[0]
-                return commandExplore(client, location)
-            },
+            callback: callbackWithParams(commandExplore),
         },
         "catch":{
             name: "catch",
             description: "Attempt to catch the chosen pokemon",
-            callback: func(params []string) error{
-                if len(params)<1{
-                    return errors.New("No pokemon provided for 'catch' command")
-                }
-                pokemon:=params[0]
-                return commandCatch(client, pokemon)
-            },
+            callback: callbackWithParams(commandCatch),
         },
         "inspect":{
             name: "inspect",
             description: "Get information regarding the chosen pokemon",
-            callback: func(params []string) error{
-                if len(params)<1{
-                    return errors.New("No pokemon provided for 'inspect' command")
-                }
-                pokemon:=params[0]
-                return commandInspect(client, pokemon)
-            },
+            callback: callbackWithParams(commandInspect),
         },
         "pokedex":{
             name: "pokedex",
             description: "List caught pokemon",
-            callback: func(params []string) error{
-                return commandPokedex(client)
-            },
+            callback: callbackNoParams(commandPokedex),
         },
     }
-    repl()
+    repl(client)
 }
 
